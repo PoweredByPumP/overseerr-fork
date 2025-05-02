@@ -1,3 +1,10 @@
+# PBP Additions
+
+- Added a quick way to define our servers names on [src/components/RequestModal/AdvancedRequester/index.tsx](src/components/RequestModal/AdvancedRequester/index.tsx)
+- Added a quick way to remove specific tags on [src/components/RequestModal/AdvancedRequester/index.tsx](src/components/RequestModal/AdvancedRequester/index.tsx)
+
+---
+
 <p align="center">
 <img src="./public/logo_full.svg" alt="Overseerr" style="margin: 20px 0;">
 </p>

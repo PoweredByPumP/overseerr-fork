@@ -3,7 +3,9 @@ import { SmallLoadingSpinner } from '@app/components/Common/LoadingSpinner';
 import type { User } from '@app/hooks/useUser';
 import { Permission, useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
+import rawLabelsToHide from '@app/utils/labelsToHide.json';
 import { formatBytes } from '@app/utils/numberHelpers';
+import rawRootFolderLabels from '@app/utils/rootFolderLabels.json';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import type {
@@ -17,6 +19,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Select from 'react-select';
 import useSWR from 'swr';
+
+const rootFolderLabels = rawRootFolderLabels as Record<string, string>;
+const labelsToHide = rawLabelsToHide as string[];
 
 type OptionType = {
   value: number;
@@ -108,6 +113,16 @@ const AdvancedRequester = ({
         revalidateOnFocus: false,
       }
     );
+
+  if (serverData && serverData.tags) {
+    serverData.tags = serverData.tags.filter((tag) => {
+      return (
+        !tag.label.includes(' ') &&
+        !tag.label.startsWith('..') &&
+        !labelsToHide.includes(tag.label)
+      );
+    });
+  }
 
   const [selectedUser, setSelectedUser] = useState<User | null>(
     requestUser ?? null
@@ -416,7 +431,8 @@ const AdvancedRequester = ({
                       >
                         {isAnime &&
                         serverData.server.activeAnimeDirectory === folder.path
-                          ? intl.formatMessage(messages.default, {
+                          ? 'salut1' +
+                            intl.formatMessage(messages.default, {
                               name: intl.formatMessage(messages.folder, {
                                 path: folder.path,
                                 space: formatBytes(folder.freeSpace ?? 0),
@@ -426,12 +442,12 @@ const AdvancedRequester = ({
                             serverData.server.activeDirectory === folder.path
                           ? intl.formatMessage(messages.default, {
                               name: intl.formatMessage(messages.folder, {
-                                path: folder.path,
+                                path: rootFolderLabels[folder.path as string],
                                 space: formatBytes(folder.freeSpace ?? 0),
                               }),
                             })
                           : intl.formatMessage(messages.folder, {
-                              path: folder.path,
+                              path: rootFolderLabels[folder.path as string],
                               space: formatBytes(folder.freeSpace ?? 0),
                             })}
                       </option>
@@ -519,6 +535,13 @@ const AdvancedRequester = ({
                       );
 
                       if (!foundTag) {
+                        return undefined;
+                      }
+
+                      if (
+                        foundTag.label.includes(' ') ||
+                        foundTag.label.startsWith('..')
+                      ) {
                         return undefined;
                       }
 
